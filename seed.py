@@ -4,7 +4,7 @@ from sqlalchemy import func
 from model import User
 from model import Rating
 from model import Movie
-from datetime import strptime
+from datetime import datetime
 
 from model import connect_to_db, db
 from server import app
@@ -48,13 +48,10 @@ def load_movies():
     for row in open("seed_data/u.item"):
         row = row.rstrip()
 
-        row = row.split("|")
-        row = row[:5]
-
-        movie_id, title, released_at, video_release_date, imdb_url = row[0], row[1], row[2], row[3], row[4]
+        movie_id, title, released_at, junk, imdb_url = row.split("|")[:5]
 
         if released_at:
-            released_at = datetime.datetime.strptime(released_at, "%d-%b-%Y")
+            released_at = datetime.strptime(released_at, "%d-%b-%Y")
         else:
             released_at = None
 
@@ -82,9 +79,13 @@ def load_ratings():
     Rating.query.delete()
 
     # Read u.user file and insert data
-    for row in open("seed_data/u.data"):
+    for i, row in enumerate(open("seed_data/u.data")):
         row = row.rstrip()
         user_id, movie_id, score, timestamp = row.split("\t")
+
+        user_id = int(user_id)
+        movie_id = int(movie_id)
+        score = int(score)
 
         rating = Rating(user_id=user_id,
                     movie_id=movie_id,
@@ -93,7 +94,11 @@ def load_ratings():
         # We need to add to the session or it won't ever be stored
         db.session.add(rating)
 
-    # Once we're done, we should commit our work
+        if i % 1000 == 0:
+            print i
+            db.session.commit()
+
+    # Once we're done, we should commit our work         
     db.session.commit()
 
 def set_val_user_id():
@@ -107,19 +112,7 @@ def set_val_user_id():
     query = "SELECT setval('users_user_id_seq', :new_id)"
     db.session.execute(query, {'new_id': max_id + 1})
     db.session.commit()
-
-def set_val_movie_id():
-    """Set value for the next movie_id after seeding database"""
-
-    # Get the Max user_id in the database
-    result = db.session.query(func.max(Movie.movie_id)).one()
-    max_id = int(result[0])
-
-    # Set the value for the next user_id to be max_id + 1
-    query = "SELECT setval('movies_movie_id_seq', :new_id)"
-    db.session.execute(query, {'new_id': max_id + 1})
-    db.session.commit()
-
+    
 
 if __name__ == "__main__":
     connect_to_db(app)
@@ -132,5 +125,5 @@ if __name__ == "__main__":
     load_movies()
     load_ratings()
     set_val_user_id()
-    set_val_movie_id()
+    
 
