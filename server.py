@@ -40,6 +40,21 @@ def show_user(user_id):
    
     return render_template("user_info.html", user=user)
 
+@app.route("/movies")
+def movie_list():
+    """Show list of movies."""
+
+    movies = Movie.query.order_by("title").all()
+    return render_template("movie_list.html", movies=movies)
+
+@app.route("/movies/<movie_title>")
+def show_movie(movie_title):
+    """Show information of the chosen movie."""
+
+    movie = Movie.query.filter_by(title=movie_title).first()
+   
+    return render_template("movie_info.html", movie=movie)
+
 
 
 @app.route("/register", methods=['GET'])

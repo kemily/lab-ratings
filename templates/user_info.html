@@ -6,13 +6,11 @@
     <ul>
       <li>{{ user.age }}</li>
       <li>{{ user.zipcode }}</li>
-      <li>
         {% for info in user.ratings %}
           Movie title: {{ info.movie.title }}, 
           <b>Score: {{ info.score }}</b>
           <br>
         {% endfor %}
-      </li>
     </ul>
 
 {% endblock %}
