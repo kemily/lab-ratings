@@ -1,14 +1,19 @@
 {% extends 'base.html' %}
 {% block content %}
 
-  <hi>Please, login!</h1>
+  <hi>Please, Register!</h1>
+  <br>
 
     <form action="/register" method="POST">
-        <label>Enter Email: 
-           <input type="text" name="email"></label>
-        <label>Enter Password: 
-           <input type="password" name="password"></label>
-        <input type="submit" value="Login">
+        <p><label>Enter Email: 
+           <input type="text" name="email"></label></p>
+        <p><label>Enter Password: 
+           <input type="password" name="password"></label></p>
+        <p><label>Enter Age: 
+           <input type="number" name="age"></label></p>
+        <p><label>Enter Zipcode: 
+           <input type="number" name="zipcode"></label></p>
+        <input type="submit" value="Register">
     </form>
 
 {% endblock %}

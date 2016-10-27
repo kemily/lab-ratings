@@ -32,6 +32,16 @@ def user_list():
     users = User.query.all()
     return render_template("user_list.html", users=users)
 
+@app.route("/users/<user_id>")
+def show_user(user_id):
+    """Show information of the chosen user."""
+
+    user = User.query.filter_by(user_id=user_id).first()
+   
+    return render_template("user_info.html", user=user)
+
+
+
 @app.route("/register", methods=['GET'])
 def register_form():
     """Show page for the register form."""
@@ -42,6 +52,36 @@ def register_form():
 
 @app.route("/register", methods=['POST'])
 def register_process():
+    """Action for a register form."""
+
+    email = request.form.get('email')
+    password = request.form.get('password')
+    age = request.form.get('age')
+    zipcode = request.form.get('zipcode')
+
+    new_user = User(email=email, 
+                    password=password, 
+                    age=age, 
+                    zipcode=zipcode)
+
+    db.session.add(new_user)
+
+    db.session.commit()
+
+    flash("You are registered successfully!!!")
+    return redirect("/")
+
+
+@app.route("/login", methods=['GET'])
+def login_form():
+    """Show page for the login form."""
+
+    return render_template("login_form.html")
+
+
+
+@app.route("/login", methods=['POST'])
+def login_process():
     """Action for a login form."""
 
     email = request.form.get('email')
@@ -50,26 +90,23 @@ def register_process():
     current_user = User.query.filter_by(email = email).first()
 
     if current_user:
-        if email != current_user.email:
-            flash('Invalid credentials')
+        if current_user.password == password:
+            session["current_user"] = email
+            flash("You are successfully logged in")
+            return render_template("user_info.html", user=current_user)
         else: 
-            if current_user.password == password:
-                session["current_user"] = email
-                flash("You are successfully logged in")
-                return redirect ("/")
-            else: 
-                flash("Wrong password!")
-                return redirect("/register")
+            flash("Wrong password!")
+            return redirect("/login")
     else:
         flash("User not exist!")
-        return redirect("/register")
+        return redirect("/login")
 
 @app.route("/logout", methods=['GET'])
-def register_form():
+def user_logout():
     """Show logout page."""
 
     if session["current_user"]:
-        session.pop('current_user')
+        del session['current_user']
         flash("Logged out!")
     return redirect ("/")
 
@@ -77,6 +114,8 @@ if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the
     # point that we invoke the DebugToolbarExtension
     app.debug = True
+
+    app.jinja_env.auto_reload = True
 
     connect_to_db(app)
 

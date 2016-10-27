@@ -10,8 +10,12 @@
 </head>
 
 <body>
-  Ratings
-  <hr>
+
+    {% if "current_user" in session %} 
+    <form action="/logout">
+        <input type="submit" value="Logout">
+    </form>
+    {% endif %}
 
   {% block content %} put your content here {% endblock %}
 
