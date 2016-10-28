@@ -17,7 +17,7 @@
 
     {% if "current_user" in session %}
     <h2>Rate the movie</h2> 
-    <form action="/rate" method="POST">
+    <form action="/movies/{{ movie.movie_id }}" method="POST">
         <p><label>Enter rating from 1 to 5: 
            <input type="number" name="rating"></label></p>
         <input type="submit" value="Rate">
